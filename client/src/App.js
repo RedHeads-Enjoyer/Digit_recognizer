@@ -9,6 +9,7 @@ function App() {
     const [end, setEnd] = useState({ x: 0, y: 0 });
     const [clearCanvas, setClearCanvas] = useState(false);
     const [predict, setPredict] = useState([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    const [isTraining, setIsTraining] = useState(false)
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -86,9 +87,17 @@ function App() {
         setClearCanvas(true);
     };
 
-    useEffect(() => {
-
-    }, [predict]);
+    const handleRetrain = () => {
+        setIsTraining(true)
+        axios.get("http://127.0.0.1:8000/model/retrain")
+            .then(r => {
+                setIsTraining(false)
+            })
+            .catch(e => {
+                setIsTraining(false)
+                console.error(e) // log the error
+            })
+    }
 
     return (
         <div className={classes.app__wrapper}>
@@ -102,9 +111,11 @@ function App() {
                     onMouseOut={handleMouseOut}
                 />
                 {predict.map((pred, i) => (
-                    <div key={i} style={{width: pred * 100 + "px", backgroundColor: "red", transition: "0.1s"}}>{i}</div>
+                    <div key={i}
+                         style={{width: pred * 100 + "px", backgroundColor: "red", transition: "0.1s"}}>{i}</div>
                 ))}
                 <button onClick={handleClearCanvas}>Clear Canvas</button>
+                <button onClick={handleRetrain} disabled={isTraining}>Retrain</button>
             </div>
         </div>
     );
